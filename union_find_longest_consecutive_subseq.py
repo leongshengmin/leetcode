@@ -20,4 +20,6 @@ Output: 9
 
 # use union find here
 # since we can join 2 consecutive subseq to find a longer consecutive subseq if the elems arent in the same set
- 
+class Solution:
+    def longestCommonSubsequence(self, text1: str, text2: str) -> int:
+        pass

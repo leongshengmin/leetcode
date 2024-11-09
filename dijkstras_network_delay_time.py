@@ -18,7 +18,7 @@ we have a src node.
 """
 
 class Solution:
-    def networkDelayTime(self, times: List[List[int]], n: int, k: int) -> int:
+    def networkDelayTime(self, times: list[list[int]], n: int, k: int) -> int:
         # min time for all n nodes to receive signal
         # means we need to find the min weight edges that connect all nodes
         # then sum up edge weights

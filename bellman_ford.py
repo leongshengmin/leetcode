@@ -53,3 +53,16 @@ if __name__ == '__main__':
     
     #output:0 5 6 6 7
 """
+
+def bellmanford(num_v:int, edges:list[list[int]], src:int):
+    pass
+
+if __name__ == '__main__':
+    V = 5
+    edges = [[1, 3, 2], [4, 3, -1], [2, 4, 1], [1, 2, 1], [0, 1, 5]]
+
+    src = 0
+    ans = bellmanford(V, edges, src)
+    print(' '.join(map(str, ans)))
+    
+    #output:0 5 6 6 7

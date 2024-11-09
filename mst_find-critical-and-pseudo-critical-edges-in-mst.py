@@ -32,3 +32,9 @@ class Solution:
         
         return [critical_edges, pseudo_critical_edges]
 """
+from typing import List
+
+
+class Solution:
+    def findCriticalAndPseudoCriticalEdges(self, n: int, edges: List[List[int]]) -> List[List[int]]:
+        pass

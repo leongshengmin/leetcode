@@ -15,3 +15,36 @@ where we're trying to minimize edge weights.
 
 we need to use bellman fords here since edge weights can be negative. 
 """
+
+# Function to obtain the maximum Flow
+from typing import List
+
+
+def getMaxFlow(capi: List[List[int]], 
+              costi: List[List[int]], 
+              src: int, sink: int) -> List[int]:
+    pass
+
+
+# Driver Code
+if __name__ == "__main__":
+ 
+    s = 0
+    t = 4
+ 
+    cap = [ [ 0, 3, 1, 0, 3 ], 
+            [ 0, 0, 2, 0, 0 ], 
+            [ 0, 0, 0, 1, 6 ], 
+            [ 0, 0, 0, 0, 2 ],
+            [ 0, 0, 0, 0, 0 ] ]
+ 
+    cost = [ [ 0, 1, 0, 0, 2 ], 
+             [ 0, 0, 0, 3, 0 ], 
+             [ 0, 0, 0, 0, 0 ], 
+             [ 0, 0, 0, 0, 1 ],
+             [ 0, 0, 0, 0, 0 ] ]
+ 
+    ret = getMaxFlow(cap, cost, s, t)
+ 
+    print("{} {}".format(ret[0], ret[1]))
+    # output: 6 8

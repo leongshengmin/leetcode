@@ -123,6 +123,50 @@ class Graph:
             # mark parent[vertex in edge] = vertex in MST
             # mark also parent[other vertex in edge] = vertex in edge
         
+        def find(u):
+            if parents[u] == u:
+                return u
+            parents[u] = find(parents[u])
+            return parents[u]
+    
+        def union(u, v):
+            # merge set u into v
+            if set_size[u] < set_size[v]:
+                parents[u] = v
+                set_size[v] += set_size[u]
+                return
+            parents[v] = u
+            set_size[u] += set_size[v]
+
+        import heapq
+
+        pq = []
+        parents = [i for i in range(self.num_v)]
+        set_size = [1 for i in range(self.num_v)]
+        for i in range(self.num_v):
+            for j in range(self.num_v):
+                if self.adj_matrix[i][j] == 0:
+                    continue
+                w = self.adj_matrix[i][j]
+                pq.append((w, i, j))
+        
+        heapq.heapify(pq)
+
+        mst_edges = []
+        came_from = [0 for _ in range(self.num_v)]
+
+        while pq and len(mst_edges) < self.num_v - 1:
+            w, u, v = heapq.heappop(pq)
+            pu = find(u)
+            pv = find(v)
+            if pu == pv:
+                continue
+            union(u, v)
+            mst_edges.append((w, u, v))
+            came_from[v] = u
+        
+        self.print_mst(came_from)
+        
     
     def prim_mst(self):
         import heapq
@@ -196,3 +240,4 @@ if __name__ == '__main__':
     1 - 4     5 
     """
     g.prim_mst()
+    g.kruskals_mst()
