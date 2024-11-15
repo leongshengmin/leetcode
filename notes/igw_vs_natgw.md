@@ -33,10 +33,13 @@ NAT Gateways exist because organizations want the additional security offered by
 
 A NAT Gateway is not very complex. In fact, you can run a NAT instance on Amazon EC2 that does a similar job. Simply launch an Amazon EC2 instance and run this script:
 
+'''
 sudo sysctl -w net.ipv4.ip_forward=1
 sudo /sbin/iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
 sudo yum install iptables-services
 sudo service iptables save
+'''
+
 A NAT Gateway is a bit more sophisticated in that it automatically scales based on the traffic being served and will automatically redeploy any failed infrastructure. It is, effectively, a "managed, auto-scaled NAT instance".
 
 You are right that all of the above is implemented as a virtual network. There is no physical device called an Internet Gateway or a NAT Gateway. Much of it is logical routing, although the NAT Gateway does involve launching infrastructure behind-the-scenes (probably on the same infrastructure that runs EC2 instances). The NAT Gateway only connects to one VPC -- it is not a 'shared service' like Amazon S3, which is available to many AWS users simultaneously.
