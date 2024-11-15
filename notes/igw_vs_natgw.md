@@ -1,13 +1,18 @@
 # IGW vs NAT gw
 
+for reaching the internet:
+there must be a route to IGW. eg
+- -> TGW -> IGW
+- NAT gw -> IGW
+
 Public subnet means theres a route table with route to IGW.
 so hosts in public subnet are internet addressable. 
 
 NAT gw is for private subnet (hosts with private ip) to connect to the internet (only OUTBOUND traffic - instances are not internet addressable).
 NAT gw sits in public subnet since it needs to be publicly addressable to recv responses from internet. 
-If private subnet has route table with route to NAT
+If private subnet has route table with route to NAT gw then instances with private ip can reach the internet.
 
-IGW is for 
+IGW is a proxy for public subnet (instances with public ip). Instances in public subnet are internet addressable.
 
 ### Qns
 1. Why does NAT gateway have to be in public subnet? I think on cloud network is implemented by virtual nodes. So why couldn't it be for NAT gateway to act like router in a private subnet, to do NAT when destination address is outside the private network it is also part of?
