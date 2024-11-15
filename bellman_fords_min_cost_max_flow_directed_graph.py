@@ -23,7 +23,24 @@ from typing import List
 def getMaxFlow(capi: List[List[int]], 
               costi: List[List[int]], 
               src: int, sink: int) -> List[int]:
-    pass
+    # calculate edge weights from capi, costi
+    # use bellman fords to calculate the min cost between all vertices
+    num_v = len(capi)
+    distances = [float('inf') for i in range(num_v)]
+    distances[src] = 0
+
+    weights = [[0 for _ in range(num_v)] for _ in range(num_v)]
+
+    for u in range(num_v):
+        for v in range(num_v):
+            if u == v:
+                continue
+            # define w to be cost-cap since bellman ford tries to minimize cost
+            w = cost[u][v] - capi[u][v]
+            weights[u][v] = w
+    
+    for i in range(num_v - 1):
+        pass 
 
 
 # Driver Code

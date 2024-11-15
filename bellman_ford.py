@@ -55,7 +55,18 @@ if __name__ == '__main__':
 """
 
 def bellmanford(num_v:int, edges:list[list[int]], src:int):
-    pass
+    # for each edge for v-1 times
+    # vth time is for checking if there is a neg edge cycle
+    distances = [float('inf') for i in range(num_v)]
+    distances[src] = 0
+    parents = [0 for i in range(num_v)]
+
+    for _ in range(num_v - 1):
+        for (u, v, w) in edges:
+            if distances[v] > distances[u] + w:
+                distances[v] = distances[u] + w
+                parents[v] = u
+    return distances
 
 if __name__ == '__main__':
     V = 5
