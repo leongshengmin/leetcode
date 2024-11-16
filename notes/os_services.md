@@ -59,4 +59,18 @@ System calls are implemented as part of the operating system kernel. When a user
 
 Each system call is associated with a unique identifier known as a system call number. This number is used to index into a system call table maintained by the kernel, which maps numbers to the corresponding system call handlers. When a system call is invoked, the kernel uses this number to find the appropriate function to execute.
 
+**How syscalls are executed**
+
+1. The trap handler first saves the states of the process8 and examines the system call index left in a certain register.
+2. It then refers to the standard system call table and dispatches the system service request accordingly, i.e: branches onto the address in the Kernel space that implements the system call service routine of the system call with that index and executes it.
+3. When the system call service routine returns to the trap handler, the program execution can be resumed. If the system call does not return yet (e.g: block system call like input()), then the scheduler may be called to schedule another process, while this process is put to wait until the requested service is available.
+
+![syscall_flow](https://natalieagus.github.io/50005/assets/images/week2/5.png)
+
+as each syscall requires cpying process stack and trapping to switch from usermode to kernel mode to run the syscall handler (eg read bytes from file) in the CPU, this is expensive since it halts the existing process execution state and if syscall is blocking then process may need to transition to waiting state.
+
+
+
+
+
 
