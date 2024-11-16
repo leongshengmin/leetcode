@@ -69,8 +69,7 @@ Each system call is associated with a unique identifier known as a system call n
 
 as each syscall requires cpying process stack and trapping to switch from usermode to kernel mode to run the syscall handler (eg read bytes from file) in the CPU, this is expensive since it halts the existing process execution state and if syscall is blocking then process may need to transition to waiting state.
 
-
-
+[linux syscall api doc](https://man7.org/linux/man-pages/man2/syscalls.2.html)
 
 
 
