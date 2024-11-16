@@ -32,3 +32,16 @@ since io operation returns almost immediately, need to use polling to check on t
 
 The select() system call can be used to check if there is new data or not, e.g: at stdin file descriptor.
 Then a blocking system call like read() may be used afterwards knowing that they will complete immediately.
+
+
+## System Call via API Examples
+
+#### Example: printf()
+
+We always conveniently call printf() whenever we want to display our output to the console in C. printf itself is a POSIX system call API.
+
+This function requires kernel service as it involves access to hardware: output display.
+The function printf is actually making several other function calls to prepare the resources or requirements for this system call and finally make the actual system call that invokes the kernel’s help to display the output to the display.
+
+
+The full implementation of printf in Mach OS can be found here. It calls other functions like putc and eventually write function that makes the system call to stdout file descriptor.
