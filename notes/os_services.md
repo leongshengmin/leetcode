@@ -28,5 +28,7 @@ On the other hand, a non blocking system call can return almost immediately with
 ### Non-blocking IO
 For instance, select() is non-blocking.
 
+since io operation returns almost immediately, need to use polling to check on the progress of the operation eg how many bytes have been read if we're reading the whole file. 
+
 The select() system call can be used to check if there is new data or not, e.g: at stdin file descriptor.
 Then a blocking system call like read() may be used afterwards knowing that they will complete immediately.
