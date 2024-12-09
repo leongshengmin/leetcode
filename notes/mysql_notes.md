@@ -89,3 +89,6 @@ Hash indexes have somewhat different characteristics from those just discussed:
 
     Only whole keys can be used to search for a row. (With a B-tree index, any leftmost prefix of the key can be used to find rows.) 
 
+
+## Spin locks
+TODO spin locks vs other locks mysql uses
