@@ -688,6 +688,9 @@ iptables -A INPUT -p tcp -s 203.0.113.0/24 --dport 22 -m conntrack --ctstate NEW
 iptables -A OUTPUT -p tcp --sport 22 -m conntrack --ctstate ESTABLISHED -j ACCEPT
 ```
 
+## Conntrack
+TODO
+
 **Optimizations - network zero copy transmission**
 data is copied once from user buffer -> kernel buffer (SKB)
 
