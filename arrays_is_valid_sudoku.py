@@ -10,7 +10,7 @@ class Solution:
             for j in range(len(board)):
                 if board[i][j] == ".":
                     continue
-                counter[int(board[i][j]) - 1]+=1
+                counter[int(board[i][j]) - 1] += 1
                 if counter[int(board[i][j]) - 1] > 1:
                     return False
             counter = [0 for _ in range(len(board))]
@@ -18,10 +18,10 @@ class Solution:
             for j in range(len(board)):
                 if board[j][i] == ".":
                     continue
-                counter[int(board[j][i]) - 1]+=1
+                counter[int(board[j][i]) - 1] += 1
                 if counter[int(board[j][i]) - 1] > 1:
                     return False
-        
+
         # check 3x3
         # start of grid
         for i in [0, 3, 6]:
@@ -29,10 +29,10 @@ class Solution:
                 counter = [0 for _ in range(len(board))]
                 for ii in range(3):
                     for jj in range(3):
-                        if board[ii+i][jj+j] == ".":
+                        if board[ii + i][jj + j] == ".":
                             continue
-                        counter[int(board[ii+i][jj+j])-1]+=1
-                        if counter[int(board[ii+i][jj+j])-1] > 1:
+                        counter[int(board[ii + i][jj + j]) - 1] += 1
+                        if counter[int(board[ii + i][jj + j]) - 1] > 1:
                             return False
 
         return True

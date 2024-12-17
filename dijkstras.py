@@ -22,21 +22,22 @@ At each step:
             - update the distance to the neighbor
             - update the parent
 """
+
 import heapq
 
 
-def dijkstras_algo(src:int, graph:list[list[int]]):
+def dijkstras_algo(src: int, graph: list[list[int]]):
     """
     src: source vertex id
     graph: adjacency matrix
     return: path from src to all other vertices
     """
     # init
-    distances = [float('inf')] * len(graph)
+    distances = [float("inf")] * len(graph)
     distances[src] = 0
     visited = [False] * len(graph)
     parents = [None] * len(graph)
-    
+
     # min heap storing distances of vertices
     to_visit = [(distances[src], src)]
     heapq.heapify(to_visit)
@@ -58,16 +59,19 @@ def dijkstras_algo(src:int, graph:list[list[int]]):
                 continue
             # edge distance is smaller update dist
             if distances[v] > distances[u] + graph[u][v]:
-                print(f"updating dist v{v}: {distances[v]} -> {distances[u] + graph[u][v]}")
+                print(
+                    f"updating dist v{v}: {distances[v]} -> {distances[u] + graph[u][v]}"
+                )
                 distances[v] = distances[u] + graph[u][v]
-            
+
             # add new dist to heap
             heapq.heappush(to_visit, (distances[v], v))
             parents[v] = u
 
     print_soln(graph, parents, distances)
 
-def print_soln(graph:list[list[int]], parents:list[int], distances:list[int]):
+
+def print_soln(graph: list[list[int]], parents: list[int], distances: list[int]):
     for v in range(len(graph)):
         u = parents[v]
         # chain of vertices leading to v
@@ -92,7 +96,7 @@ graph = [
     [0, 0, 4, 14, 10, 0, 2, 0, 0],
     [0, 0, 0, 0, 0, 2, 0, 1, 6],
     [8, 11, 0, 0, 0, 0, 1, 0, 7],
-    [0, 0, 2, 0, 0, 0, 6, 7, 0]
+    [0, 0, 2, 0, 0, 0, 6, 7, 0],
 ]
 dijkstras_algo(0, graph)
 """

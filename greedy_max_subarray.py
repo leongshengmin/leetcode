@@ -10,17 +10,18 @@ class Solution:
             # cannot ignore negative here since if whole arr is negative we need to get least neg number
             # if curr_sum < 0:
             #     continue
-            for j in range(i+1, len(nums)):
-                if j<=i:
+            for j in range(i + 1, len(nums)):
+                if j <= i:
                     break
-                if curr_sum+nums[j]<0:
+                if curr_sum + nums[j] < 0:
                     break
-                curr_sum+=nums[j]
+                curr_sum += nums[j]
                 # update max sum in inner loop as well since we only break if sum goes neg
                 max_sum = max(max_sum, curr_sum)
             max_sum = max(max_sum, curr_sum)
         return max_sum
 
+
 s = Solution()
-nums=[-2,1,-3,4,-1,2,1,-5,4]
+nums = [-2, 1, -3, 4, -1, 2, 1, -5, 4]
 print(s.maxSubArray(nums))

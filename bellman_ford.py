@@ -54,26 +54,28 @@ if __name__ == '__main__':
     #output:0 5 6 6 7
 """
 
-def bellmanford(num_v:int, edges:list[list[int]], src:int):
+
+def bellmanford(num_v: int, edges: list[list[int]], src: int):
     # for each edge for v-1 times
     # vth time is for checking if there is a neg edge cycle
-    distances = [float('inf') for i in range(num_v)]
+    distances = [float("inf") for i in range(num_v)]
     distances[src] = 0
     parents = [0 for i in range(num_v)]
 
     for _ in range(num_v - 1):
-        for (u, v, w) in edges:
+        for u, v, w in edges:
             if distances[v] > distances[u] + w:
                 distances[v] = distances[u] + w
                 parents[v] = u
     return distances
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     V = 5
     edges = [[1, 3, 2], [4, 3, -1], [2, 4, 1], [1, 2, 1], [0, 1, 5]]
 
     src = 0
     ans = bellmanford(V, edges, src)
-    print(' '.join(map(str, ans)))
-    
-    #output:0 5 6 6 7
+    print(" ".join(map(str, ans)))
+
+    # output:0 5 6 6 7

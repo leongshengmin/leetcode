@@ -4,6 +4,7 @@
 #         self.val = val
 #         self.next = next
 
+
 class Solution:
     def removeNthFromEnd(self, head: Optional[ListNode], n: int) -> Optional[ListNode]:
         # keep counter of pos from start
@@ -13,10 +14,10 @@ class Solution:
         curr = head
         num_nodes = 0
         while curr:
-            num_nodes+=1
+            num_nodes += 1
             curr = curr.next
 
-        index_from_start = num_nodes-n
+        index_from_start = num_nodes - n
 
         # edge case when n is the head
         if index_from_start <= 0:

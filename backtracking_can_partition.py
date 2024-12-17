@@ -14,30 +14,30 @@ class Solution:
         remain = sum(nums) % 2
         if remain != 0:
             return False
-        
-        def helper(nums:List[int], i:int, target:int, taken:List[int]) -> bool:
+
+        def helper(nums: List[int], i: int, target: int, taken: List[int]) -> bool:
             if target == 0:
                 return True
             # end of nums yet not hitting target yet
             if i >= len(nums):
                 return False
-            
+
             # if already taken then obv cant take again
             if taken[i] == 1:
-                return helper(nums, i+1, target, taken)
+                return helper(nums, i + 1, target, taken)
 
             # otherwise we have a choice whether to take or not
             # here we choose to take
             taken[i] = 1
-            include = helper(nums, i+1, target-nums[i], taken)
+            include = helper(nums, i + 1, target - nums[i], taken)
 
             # check if including this item makes nums partitionable
             if include:
                 return True
-            
+
             # otherwise backtrack by resetting taken[i]
             taken[i] = -1
-            donotinclude = helper(nums, i+1, target, taken)
+            donotinclude = helper(nums, i + 1, target, taken)
             return donotinclude
-        
+
         return helper(nums, 0, target, taken)

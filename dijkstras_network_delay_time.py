@@ -17,12 +17,13 @@ USE PRIM/KRUSKALs since the graph is directed AND
 we have a src node.
 """
 
+
 class Solution:
     def networkDelayTime(self, times: list[list[int]], n: int, k: int) -> int:
         # min time for all n nodes to receive signal
         # means we need to find the min weight edges that connect all nodes
         # then sum up edge weights
-        
+
         # NOT a MST problem
         # NEED TO USE Dijkstras
         # since qn is asking for min cost to reach all nodes
@@ -33,7 +34,7 @@ class Solution:
         for i in range(len(times)):
             u, v, w = times[i]
             adj_matrix[u][v] = w
-        
+
         min_w = 99999
         kd = None
         for d in adj_matrix[k]:
@@ -52,6 +53,5 @@ class Solution:
                 continue
             for d in adj_matrix[v]:
                 heapq.heappush(to_visit, (adj_matrix[v][d], v, d))
-        
-        return sum(edges)
 
+        return sum(edges)

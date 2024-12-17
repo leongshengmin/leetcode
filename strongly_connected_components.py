@@ -75,6 +75,8 @@ if __name__ == "__main__":
             print(y, end=" ")
         print()
 """
+
+
 class GFG:
     # Function to return all the strongly connected components of a graph.
     def findSCC(self, n, a) -> list:
@@ -82,13 +84,12 @@ class GFG:
         ans = []
         pass
 
+
 # Driver Code Starts
 if __name__ == "__main__":
     obj = GFG()
     V = 5
-    edges = [
-        [1, 3], [1, 4], [2, 1], [3, 2], [4, 5]
-    ]
+    edges = [[1, 3], [1, 4], [2, 1], [3, 2], [4, 5]]
     ans = obj.findSCC(V, edges)
     print("Strongly Connected Components are:")
     for x in ans:

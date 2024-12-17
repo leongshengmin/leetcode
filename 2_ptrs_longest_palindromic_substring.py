@@ -11,26 +11,26 @@ class Solution:
             # odd len
             l = i
             r = i
-            while l>=0 and r<len(s):
-                if s[l]==s[r]:
-                    palindrome_size[i] = (r-l)+1
+            while l >= 0 and r < len(s):
+                if s[l] == s[r]:
+                    palindrome_size[i] = (r - l) + 1
                     if palindrome_size[i] >= len(longest_str):
-                        longest_str = s[l:r+1]
-                    l-=1
-                    r+=1
+                        longest_str = s[l : r + 1]
+                    l -= 1
+                    r += 1
                 else:
                     break
-            
+
             # even len
             l = i
-            r = i+1
-            while l>=0 and r<len(s):
-                if s[l]==s[r]:
-                    palindrome_size[i] = (r-l)+1
+            r = i + 1
+            while l >= 0 and r < len(s):
+                if s[l] == s[r]:
+                    palindrome_size[i] = (r - l) + 1
                     if palindrome_size[i] >= len(longest_str):
-                        longest_str = s[l:r+1]
-                    l-=1
-                    r+=1
+                        longest_str = s[l : r + 1]
+                    l -= 1
+                    r += 1
                 else:
                     break
         return longest_str

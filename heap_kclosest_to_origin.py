@@ -6,13 +6,13 @@ class Solution:
         # store distances in a min heap
         # pop k from min heap
         min_heap = []
-        for (x,y) in points:
+        for x, y in points:
             dist = math.sqrt(pow(x, 2) + pow(y, 2))
-            heapq.heappush(min_heap,(dist, x,y))
-        
+            heapq.heappush(min_heap, (dist, x, y))
+
         res = []
         for i in range(k):
             d, x, y = heapq.heappop(min_heap)
-            res.append([x,y])
-        
+            res.append([x, y])
+
         return res

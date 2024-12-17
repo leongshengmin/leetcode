@@ -21,12 +21,15 @@ Example 2:
 Input: head = [-1,5,3,4,0]
 Output: [-1,0,3,4,5]
 """
+
+
 # Definition for singly-linked list.
 class ListNode:
     def __init__(self, val=0, next=None):
         self.val = val
         self.next = next
-        
+
+
 from typing import Optional
 
 

@@ -12,11 +12,14 @@ Input: points = [[3,12],[-2,5],[-4,1]]
 Output: 18
 
 """
+
 from typing import List
 
 
 import heapq
 import heapq
+
+
 class Solution:
     def minCostConnectPoints(self, points: List[List[int]]) -> int:
         # mst
@@ -29,28 +32,26 @@ class Solution:
         # form edges
         adj_list = [[] for _ in range(len(points))]
         for i in range(len(points)):
-            xi,yi=points[i]
+            xi, yi = points[i]
             # calculate dist from xi,yi to remain vertices
             for j in range(len(points)):
-                if i==j:
+                if i == j:
                     continue
-                xj,yj=points[j]
-                dist_ij=abs(xj-xi)+abs(yi-yj)
+                xj, yj = points[j]
+                dist_ij = abs(xj - xi) + abs(yi - yj)
                 adj_list[i].append((dist_ij, j))
-    
-        min_heap.append((0,0))
+
+        min_heap.append((0, 0))
         heapq.heapify(min_heap)
 
         mst_edges = []
         visited = set()
         while min_heap and len(visited) < len(points):
-            dist_ij,i=heapq.heappop(min_heap)
+            dist_ij, i = heapq.heappop(min_heap)
             if i in visited:
                 continue
             visited.add(i)
             mst_edges.append(dist_ij)
-            for (dist_ij,j) in adj_list[i]:
-                heapq.heappush(min_heap,(dist_ij,j))
+            for dist_ij, j in adj_list[i]:
+                heapq.heappush(min_heap, (dist_ij, j))
         return sum(mst_edges)
-
-

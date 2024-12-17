@@ -6,6 +6,8 @@
 #         self.right = right
 
 import math
+
+
 class Solution:
     def levelOrder(self, root: Optional[TreeNode]) -> List[List[int]]:
         # each level max has 2^(level) nodes. Where level is 0-indexed
@@ -22,7 +24,7 @@ class Solution:
             level = []
             # number of nodes in this level
             for i in range(qlen):
-            # each level we go to we enqueue all the children of nodes from this level
+                # each level we go to we enqueue all the children of nodes from this level
                 curr = to_visit.popleft()
                 # ignore curr if its empty
                 if not curr:
@@ -33,5 +35,5 @@ class Solution:
             if not level:
                 continue
             res.append(level)
-        
+
         return res

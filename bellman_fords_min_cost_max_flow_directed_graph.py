@@ -20,13 +20,13 @@ we need to use bellman fords here since edge weights can be negative.
 from typing import List
 
 
-def getMaxFlow(capi: List[List[int]], 
-              costi: List[List[int]], 
-              src: int, sink: int) -> List[int]:
+def getMaxFlow(
+    capi: List[List[int]], costi: List[List[int]], src: int, sink: int
+) -> List[int]:
     # calculate edge weights from capi, costi
     # use bellman fords to calculate the min cost between all vertices
     num_v = len(capi)
-    distances = [float('inf') for i in range(num_v)]
+    distances = [float("inf") for i in range(num_v)]
     distances[src] = 0
 
     weights = [[0 for _ in range(num_v)] for _ in range(num_v)]
@@ -38,30 +38,34 @@ def getMaxFlow(capi: List[List[int]],
             # define w to be cost-cap since bellman ford tries to minimize cost
             w = cost[u][v] - capi[u][v]
             weights[u][v] = w
-    
+
     for i in range(num_v - 1):
-        pass 
+        pass
 
 
 # Driver Code
 if __name__ == "__main__":
- 
+
     s = 0
     t = 4
- 
-    cap = [ [ 0, 3, 1, 0, 3 ], 
-            [ 0, 0, 2, 0, 0 ], 
-            [ 0, 0, 0, 1, 6 ], 
-            [ 0, 0, 0, 0, 2 ],
-            [ 0, 0, 0, 0, 0 ] ]
- 
-    cost = [ [ 0, 1, 0, 0, 2 ], 
-             [ 0, 0, 0, 3, 0 ], 
-             [ 0, 0, 0, 0, 0 ], 
-             [ 0, 0, 0, 0, 1 ],
-             [ 0, 0, 0, 0, 0 ] ]
- 
+
+    cap = [
+        [0, 3, 1, 0, 3],
+        [0, 0, 2, 0, 0],
+        [0, 0, 0, 1, 6],
+        [0, 0, 0, 0, 2],
+        [0, 0, 0, 0, 0],
+    ]
+
+    cost = [
+        [0, 1, 0, 0, 2],
+        [0, 0, 0, 3, 0],
+        [0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 1],
+        [0, 0, 0, 0, 0],
+    ]
+
     ret = getMaxFlow(cap, cost, s, t)
- 
+
     print("{} {}".format(ret[0], ret[1]))
     # output: 6 8

@@ -38,9 +38,10 @@ if __name__ == "__main__":
 """
 
 
-def insertionSort(arr:List):
+def insertionSort(arr: List):
     pass
-    
+
+
 # Driver method
 if __name__ == "__main__":
     arr = [12, 11, 13, 5, 6]
