@@ -23,11 +23,12 @@ class Solution:
         }
 
         # sort dict by value
-        word_to_number_map = {
-            k: v
-            for k, v in sorted(word_to_number_map.items(), key=lambda item: item[1])
-        }
+        sorted_words = [
+            k for k, _ in sorted(word_to_number_map.items(), key=lambda item: item[1])
+        ]
 
         # check if order is the same
-        sorted_keys = set(word_to_number_map.keys())
-        return set(words) == set(sorted_keys)
+        for i in range(len(sorted_words)):
+            if sorted_words[i] != words[i]:
+                return False
+        return True
