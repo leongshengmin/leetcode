@@ -816,6 +816,17 @@ nsfs on /run/netns/ns1 type nsfs (rw)
 -r--r--r--  1 root root    0 Jan 15 11:53 ns1
 ```
 
+### e.g. K8s pods use cgroups for resource isolation
+Use `nsenter` to enter network namespace of the pod to check resource issues (CPU, mem, FS, networking) from the pod's POV.
+
+- Identify the pod that's running the service. You can use the `kubectl get pods` command to list all the pods in your cluster and their current status.
+- Use the `ps aux` command to find the PID of the container running the pod. Each pod is its own process.
+- Once you've identified the PID, use the nsenter command to enter the container's network namespace. The network namespace is located at `/proc/{PID}/ns/net`.
+  - use `nsenter -t {PID} -n` for troubleshooting network issues from networking ns.
+  - use `nsenter -t {PID} -m` for troubleshooting cpu util issues from PID ns.
+  - use `nsenter -t {PID} -m -u -i -n -p` for troubleshooting file permission issues from FS ns.
+- Now you can inspect the process and its resource utilization from the host's perspective. Once you're inside the container's network namespace, you can use standard networking tools (such as ping, curl, or telnet) to test connectivity to the service.
+
 ## Virtual NICs (using TUN/TAP)
 
 TUN/TAP are a way to create virtual NICs (unlike eth0 interface that is normally associated to your hardware network card).
