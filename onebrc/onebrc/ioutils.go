@@ -29,6 +29,11 @@ const (
 	semiColonDelim = ';'
 	periodDelim    = '.'
 	newLineDelim   = '\n'
+
+	// expected number of stations
+	// awk -F';' '{print $1}' 1brc/data/weather_stations.csv | sort | uniq | wc -l
+	// 41345
+	expectedNumStations = 413
 )
 
 // readStringUntilDelimiter reads a string from the provided bufio.Reader, excluding the specified end delimiter byte.
@@ -71,13 +76,18 @@ func readStringUntilDelimiter(reader *bufio.Reader, endDelimiter byte) (string, 
 // outputResultToStdOut aggregates temperature metrics by station and prints the results to standard output.
 // The output is formatted as a JSON-like object, with each station's metrics displayed as a key-value pair.
 // The metrics displayed for each station are the minimum, average, and maximum temperature values.
-func OutputResultToStdOut(aggTempByStation map[string][NumMetrics]int) {
+func OutputResultToStdOut(aggTempByStation map[string][NumMetrics]int, enableAssertion bool) {
 	// create slice of stations to sort output by
 	stations := make([]string, 0, len(aggTempByStation))
 	for station := range aggTempByStation {
 		stations = append(stations, station)
 	}
 	sort.Strings(stations)
+
+	// assert results
+	if enableAssertion {
+		assertResults(len(stations), expectedNumStations)
+	}
 
 	// aggregate results
 	// and print to stdout
@@ -92,6 +102,16 @@ func OutputResultToStdOut(aggTempByStation map[string][NumMetrics]int) {
 		fmt.Fprintf(os.Stdout, "%s=%.1f/%.1f/%.1f", station, minVF, avgVF, maxVF)
 	}
 	fmt.Fprint(os.Stdout, "}\n")
+}
+
+// assertResults checks that the number of stations in the provided slice matches the expected number.
+// If the number of stations does not match, it logs an error and panics with an error message.
+func assertResults(actualNumStations int, expectedNumStations int) {
+	// assert that we have the expected number of stations
+	if actualNumStations != expectedNumStations {
+		slog.Error("unexpected number of stations", "expected", expectedNumStations, "actual", actualNumStations)
+		panic(fmt.Errorf("expected number of stations to be %d, got %d", expectedNumStations, actualNumStations))
+	}
 }
 
 // ReadBufferedFromFile reads a station identifier and temperature value from a buffered reader.

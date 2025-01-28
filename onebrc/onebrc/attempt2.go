@@ -14,7 +14,6 @@ type DataPoint struct {
 	Temp int
 }
 
-// TODO fix this implementation -- not working
 // numConsumerGoroutines is the number of consumer goroutines to start
 const numConsumerGoroutines = 4
 
@@ -26,23 +25,22 @@ func (a *Attempt2) Run(filename string) (map[string][NumMetrics]int, error) {
 	}
 	defer file.Close()
 
-	inputs := make(chan *DataPoint)
-	resultsChan := make(chan map[string][NumMetrics]int)
-	var wg sync.WaitGroup
-
-	// close results chan
-	defer close(resultsChan)
+	// create buffered channels allowing parallel reads from number of goroutines
+	inputs := make(chan *DataPoint, numConsumerGoroutines)
+	resultsChan := make(chan map[string][NumMetrics]int, numConsumerGoroutines)
 
 	reader := bufio.NewReader(file)
 
+	var wg sync.WaitGroup
+
 	// start consumer goroutines to get agg values
-	for range numConsumerGoroutines {
-		// increment wg for each goroutine
+	for i := range numConsumerGoroutines {
 		wg.Add(1)
-		go startWorker(inputs, resultsChan)
+		go startWorker(i, inputs, resultsChan, &wg)
 	}
 
 	go func() {
+		// start producer to read from file
 		for {
 			// read buffered from file
 			station, temp, err := ReadBufferedFromFile(reader)
@@ -51,17 +49,27 @@ func (a *Attempt2) Run(filename string) (map[string][NumMetrics]int, error) {
 					break
 				}
 				slog.Error("error reading from file", "err", err)
-				return // exit goroutine
+				return // exit
 			}
 			inputs <- &DataPoint{
 				Station: station,
 				Temp: temp,
 			}
 		}
-		defer close(inputs)
+		// close input chan to let consumers know when no more data is coming
+		close(inputs)
 	}()
 
-	// merge results
+	// goroutine to close results chan
+	go func() {
+		// wait for all goroutines to finish publishing results
+		wg.Wait()
+		// close results chan once all results are published
+		close(resultsChan)
+	}()
+
+	// merge results from goroutines whenever they come in to results chan
+	// this will block until all results are published
 	aggResult := map[string][NumMetrics]int{}
 	for res := range resultsChan {
 		for station, metricVals := range res {
@@ -73,30 +81,27 @@ func (a *Attempt2) Run(filename string) (map[string][NumMetrics]int, error) {
 			}
 			aggResult[station] = [4]int{max(maxV, aggV[max_value_index]), min(minV, aggV[min_value_index]), sumV + aggV[sum_value_index], countV + aggV[count_value_index]}
 		}
-		// decrement wg each time we get 1 result from chan
-		wg.Done()
 	}
-
-	// block till all goroutines done
-	wg.Wait()
 
 	return aggResult, nil
 }
 
-func startWorker(inputs <-chan *DataPoint, res chan map[string][NumMetrics]int) {
+func startWorker(workerID int, inputs <-chan *DataPoint, res chan<- map[string][NumMetrics]int, wg *sync.WaitGroup) {
 	// create map to store agg results per worker so we don't share state
 	aggTempByStation := map[string][NumMetrics]int{}
 
-	// update aggregation map with results
-	for {
-		select {
-		case d, ok := <-inputs:
-			if !ok {
-				// output results to channel once no more inputs ie chan closed
-				res <- aggTempByStation
-				return
-			}
-			UpdateAggMapWithResults(aggTempByStation, d.Station, d.Temp)
-		}
+	defer func (){
+		// decrement wait group
+		wg.Done()
+		slog.Debug("worker done", "workerID", workerID)
+
+		// output results to channel once no more inputs ie chan closed
+		res <- aggTempByStation
+	}()
+
+	// range over input channel to process inputs
+	for input := range inputs {
+		slog.Debug("got input", "station", input.Station, "temp", input.Temp, "workerID", workerID)
+		UpdateAggMapWithResults(aggTempByStation, input.Station, input.Temp)
 	}
 }
