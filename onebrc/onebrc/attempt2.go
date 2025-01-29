@@ -2,7 +2,6 @@ package onebrc
 
 import (
 	"bufio"
-	"io"
 	"log/slog"
 	"os"
 	"sync"
@@ -11,11 +10,8 @@ import (
 type Attempt2 struct{}
 type DataPoint struct {
 	Station string
-	Temp int
+	Temp    int
 }
-
-// numConsumerGoroutines is the number of consumer goroutines to start
-const numConsumerGoroutines = 4
 
 func (a *Attempt2) Run(filename string) (map[string][NumMetrics]int, error) {
 	file, err := os.Open(filename)
@@ -29,7 +25,7 @@ func (a *Attempt2) Run(filename string) (map[string][NumMetrics]int, error) {
 	inputs := make(chan *DataPoint, numConsumerGoroutines)
 	resultsChan := make(chan map[string][NumMetrics]int, numConsumerGoroutines)
 
-	reader := bufio.NewReader(file)
+	scanner := bufio.NewScanner(file)
 
 	var wg sync.WaitGroup
 
@@ -41,19 +37,19 @@ func (a *Attempt2) Run(filename string) (map[string][NumMetrics]int, error) {
 
 	go func() {
 		// start producer to read from file
-		for {
+		for scanner.Scan() {
 			// read buffered from file
-			station, temp, err := ReadBufferedFromFile(reader)
+			station, temp, err := ReadBufferedFromFile(scanner)
 			if err != nil {
-				if err == io.EOF {
-					break
+				if err == SkippableLineErr {
+					continue
 				}
 				slog.Error("error reading from file", "err", err)
 				return // exit
 			}
 			inputs <- &DataPoint{
 				Station: station,
-				Temp: temp,
+				Temp:    temp,
 			}
 		}
 		// close input chan to let consumers know when no more data is coming
@@ -72,6 +68,7 @@ func (a *Attempt2) Run(filename string) (map[string][NumMetrics]int, error) {
 	// this will block until all results are published
 	aggResult := map[string][NumMetrics]int{}
 	for res := range resultsChan {
+		slog.Debug("received result from worker")
 		for station, metricVals := range res {
 			maxV, minV, sumV, countV := metricVals[max_value_index], metricVals[min_value_index], metricVals[sum_value_index], metricVals[count_value_index]
 			aggV, ok := aggResult[station]
@@ -87,10 +84,11 @@ func (a *Attempt2) Run(filename string) (map[string][NumMetrics]int, error) {
 }
 
 func startWorker(workerID int, inputs <-chan *DataPoint, res chan<- map[string][NumMetrics]int, wg *sync.WaitGroup) {
+	slog.Debug("starting worker", "workerID", workerID)
 	// create map to store agg results per worker so we don't share state
 	aggTempByStation := map[string][NumMetrics]int{}
 
-	defer func (){
+	defer func() {
 		// decrement wait group
 		wg.Done()
 		slog.Debug("worker done", "workerID", workerID)

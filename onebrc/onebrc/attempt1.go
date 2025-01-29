@@ -2,7 +2,6 @@ package onebrc
 
 import (
 	"bufio"
-	"io"
 	"log/slog"
 	"os"
 )
@@ -21,12 +20,12 @@ func (a *Attempt1) Run(filename string) (map[string][NumMetrics]int, error) {
 	// create map to store agg results
 	aggTempByStation := map[string][NumMetrics]int{}
 
-	reader := bufio.NewReader(file)
-	for {
-		station, temp, err := ReadBufferedFromFile(reader)
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		station, temp, err := ReadBufferedFromFile(scanner)
 		if err != nil {
-			if err == io.EOF {
-				break
+			if err == SkippableLineErr {
+				continue
 			}
 			slog.Error("error reading from file", "err", err)
 			return nil, err
@@ -35,6 +34,7 @@ func (a *Attempt1) Run(filename string) (map[string][NumMetrics]int, error) {
 		// update agg results
 		UpdateAggMapWithResults(aggTempByStation, station, temp)
 	}
+	slog.Info("done aggregating results")
 
 	return aggTempByStation, nil
 }

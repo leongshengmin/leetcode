@@ -3,7 +3,6 @@ package onebrc
 import (
 	"bufio"
 	"fmt"
-	"io"
 	"log/slog"
 	"os"
 	"sort"
@@ -36,42 +35,8 @@ const (
 	expectedNumStations = 413
 )
 
-// readStringUntilDelimiter reads a string from the provided bufio.Reader, excluding the specified end delimiter byte.
-// This function is necessary because the standard bufio.ReadString implementation includes the delimiter in the returned string.
-// The function skips over any leading delimiter bytes and returns the string up to but not including the first occurrence of the end delimiter.
-// If the end of the reader is reached before the delimiter is found, the function returns the string read so far and an io.EOF error.
-func readStringUntilDelimiter(reader *bufio.Reader, endDelimiter byte) (string, error) {
-	// reads string using bufio reader excluding delimiter
-	// unable to use bufio readString impl as that includes delimiter
-	sb := strings.Builder{}
-	for {
-		byteArr, err := reader.Peek(1)
-		if err != nil {
-			if err == io.EOF {
-				return sb.String(), err
-			}
-			slog.Error("error reading byte using peek op", "err", err)
-			break
-		}
-		// if next char is end delimiter
-		// we should return the bytes in buffer
-		if byteArr[0] == endDelimiter {
-			return sb.String(), nil
-		}
-		b, err := reader.ReadByte()
-		if err != nil {
-			slog.Error("error reading byte", "err", err)
-			return sb.String(), io.EOF
-		}
-		// skip and exclude delimiters from result
-		// these delimiters may occur at start of the string
-		if b == semiColonDelim || b == periodDelim || b == newLineDelim {
-			continue
-		}
-		sb.WriteByte(b)
-	}
-	return sb.String(), nil
-}
+// numConsumerGoroutines is the number of consumer goroutines to start
+var numConsumerGoroutines = 16
 
 // outputResultToStdOut aggregates temperature metrics by station and prints the results to standard output.
 // The output is formatted as a JSON-like object, with each station's metrics displayed as a key-value pair.
@@ -114,25 +79,24 @@ func assertResults(actualNumStations int, expectedNumStations int) {
 	}
 }
 
-// ReadBufferedFromFile reads a station identifier and temperature value from a buffered reader.
-// It returns the station name, the temperature value, and any error that occurred during reading.
-// The temperature value is stored as an integer, with the decimal portion scaled by tempScalingFactor.
-func ReadBufferedFromFile(reader *bufio.Reader) (string, int, error) {
+var SkippableLineErr error
+
+// improved version compared to ReadBufferedFromFile
+func ReadBufferedFromFile(scanner *bufio.Scanner) (string, int, error) {
 	// read buffered from file
-	station, err := readStringUntilDelimiter(reader, semiColonDelim)
-	if err != nil {
-		if err == io.EOF {
-			return "", -1, io.EOF
-		}
-		slog.Error("error reading station", "err", err)
-		return "", -1, err
+	line := scanner.Text()
+	station, tempStr, hasSemi := strings.Cut(line, ";")
+	if !hasSemi {
+		return "", -1, SkippableLineErr
 	}
-	tempIntStr, _ := readStringUntilDelimiter(reader, periodDelim)
-	tempDecStr, _ := readStringUntilDelimiter(reader, newLineDelim)
+	tempIntStr, tempDecStr, hasPeriod := strings.Cut(tempStr, ".")
+	if !hasPeriod {
+		return "", -1, SkippableLineErr
+	}
 	tempInt, err := strconv.Atoi(tempIntStr)
 	tempDec, err := strconv.Atoi(tempDecStr)
 	if err != nil {
-		return "", -1, io.EOF
+		return "", -1, err
 	}
 
 	// store temp as int not float
@@ -143,6 +107,7 @@ func ReadBufferedFromFile(reader *bufio.Reader) (string, int, error) {
 		temp = tempInt*tempScalingFactor + tempDec
 	}
 	return station, temp, nil
+
 }
 
 // UpdateAggMapWithResults updates the aggregation map aggTempByStation with the temperature reading for the given station.

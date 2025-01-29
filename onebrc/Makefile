@@ -13,5 +13,4 @@ build:
 
 ## run: run the  application
 .PHONY: run
-run: build
-	bin/${BINARY_NAME}
+run: bin/${BINARY_NAME}
