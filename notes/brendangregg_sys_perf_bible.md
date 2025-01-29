@@ -1,1 +1,0 @@
-![sys_perf_book](https://www.brendangregg.com/blog/images/2020/montage_Ch06_CPUs.png)
