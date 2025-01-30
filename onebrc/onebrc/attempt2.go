@@ -10,10 +10,10 @@ import (
 type Attempt2 struct{}
 type DataPoint struct {
 	Station string
-	Temp    int
+	Temp    int16
 }
 
-func (a *Attempt2) Run(filename string) (map[string][NumMetrics]int, error) {
+func (a *Attempt2) Run(filename string) (map[string][NumMetrics]int16, error) {
 	file, err := os.Open(filename)
 	if err != nil {
 		slog.Error("error reading from file", "file", filename, "err", err)
@@ -23,7 +23,7 @@ func (a *Attempt2) Run(filename string) (map[string][NumMetrics]int, error) {
 
 	// create buffered channels allowing parallel reads from number of goroutines
 	inputs := make(chan *DataPoint, numConsumerGoroutines)
-	resultsChan := make(chan map[string][NumMetrics]int, numConsumerGoroutines)
+	resultsChan := make(chan map[string][NumMetrics]int16, numConsumerGoroutines)
 
 	scanner := bufio.NewScanner(file)
 
@@ -66,27 +66,27 @@ func (a *Attempt2) Run(filename string) (map[string][NumMetrics]int, error) {
 
 	// merge results from goroutines whenever they come in to results chan
 	// this will block until all results are published
-	aggResult := map[string][NumMetrics]int{}
+	aggResult := map[string][NumMetrics]int16{}
 	for res := range resultsChan {
 		slog.Debug("received result from worker")
 		for station, metricVals := range res {
 			maxV, minV, sumV, countV := metricVals[max_value_index], metricVals[min_value_index], metricVals[sum_value_index], metricVals[count_value_index]
 			aggV, ok := aggResult[station]
 			if !ok {
-				aggResult[station] = [4]int{maxV, minV, sumV, countV}
+				aggResult[station] = [4]int16{maxV, minV, sumV, countV}
 				continue
 			}
-			aggResult[station] = [4]int{max(maxV, aggV[max_value_index]), min(minV, aggV[min_value_index]), sumV + aggV[sum_value_index], countV + aggV[count_value_index]}
+			aggResult[station] = [4]int16{max(maxV, aggV[max_value_index]), min(minV, aggV[min_value_index]), sumV + aggV[sum_value_index], countV + aggV[count_value_index]}
 		}
 	}
 
 	return aggResult, nil
 }
 
-func startWorker(workerID int, inputs <-chan *DataPoint, res chan<- map[string][NumMetrics]int, wg *sync.WaitGroup) {
+func startWorker(workerID int, inputs <-chan *DataPoint, res chan<- map[string][NumMetrics]int16, wg *sync.WaitGroup) {
 	slog.Debug("starting worker", "workerID", workerID)
 	// create map to store agg results per worker so we don't share state
-	aggTempByStation := map[string][NumMetrics]int{}
+	aggTempByStation := map[string][NumMetrics]int16{}
 
 	defer func() {
 		// decrement wait group

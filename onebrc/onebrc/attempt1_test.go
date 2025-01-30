@@ -16,7 +16,7 @@ func TestAggregateByStation(t *testing.T) {
 		t.Fatalf("Failed to stat %s: %v", testFilePath, err)
 	}
 	a1 := Attempt1{}
-	expectedAggResults := map[string][NumMetrics]int{
+	expectedAggResults := map[string][NumMetrics]int16{
 		"Tom Price": {
 			263,
 			-268,

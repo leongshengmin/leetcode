@@ -9,7 +9,7 @@ import (
 type Attempt1 struct{}
 
 // single threaded / goroutine
-func (a *Attempt1) Run(filename string) (map[string][NumMetrics]int, error) {
+func (a *Attempt1) Run(filename string) (map[string][NumMetrics]int16, error) {
 	file, err := os.Open(filename)
 	if err != nil {
 		slog.Error("error reading from file", "file", filename, "err", err)
@@ -18,7 +18,7 @@ func (a *Attempt1) Run(filename string) (map[string][NumMetrics]int, error) {
 	defer file.Close()
 
 	// create map to store agg results
-	aggTempByStation := map[string][NumMetrics]int{}
+	aggTempByStation := map[string][NumMetrics]int16{}
 
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {

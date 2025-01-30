@@ -41,7 +41,7 @@ var numConsumerGoroutines = 16
 // outputResultToStdOut aggregates temperature metrics by station and prints the results to standard output.
 // The output is formatted as a JSON-like object, with each station's metrics displayed as a key-value pair.
 // The metrics displayed for each station are the minimum, average, and maximum temperature values.
-func OutputResultToStdOut(aggTempByStation map[string][NumMetrics]int, enableAssertion bool) {
+func OutputResultToStdOut(aggTempByStation map[string][NumMetrics]int16, enableAssertion bool) {
 	// create slice of stations to sort output by
 	stations := make([]string, 0, len(aggTempByStation))
 	for station := range aggTempByStation {
@@ -82,7 +82,7 @@ func assertResults(actualNumStations int, expectedNumStations int) {
 var SkippableLineErr error
 
 // improved version compared to ReadBufferedFromFile
-func ReadBufferedFromFile(scanner *bufio.Scanner) (string, int, error) {
+func ReadBufferedFromFile(scanner *bufio.Scanner) (string, int16, error) {
 	// read buffered from file
 	line := scanner.Text()
 	station, tempStr, hasSemi := strings.Cut(line, ";")
@@ -93,18 +93,18 @@ func ReadBufferedFromFile(scanner *bufio.Scanner) (string, int, error) {
 	if !hasPeriod {
 		return "", -1, SkippableLineErr
 	}
-	tempInt, err := strconv.Atoi(tempIntStr)
-	tempDec, err := strconv.Atoi(tempDecStr)
+	tempInt, err := strconv.ParseInt(tempIntStr, 10, 16)
+	tempDec, err := strconv.ParseInt(tempDecStr, 10, 16)
 	if err != nil {
 		return "", -1, err
 	}
 
 	// store temp as int not float
-	temp := -1
+	var temp int16
 	if tempInt < 0 {
-		temp = tempInt*tempScalingFactor - tempDec
+		temp = int16(tempInt)*tempScalingFactor - int16(tempDec)
 	} else {
-		temp = tempInt*tempScalingFactor + tempDec
+		temp = int16(tempInt)*tempScalingFactor + int16(tempDec)
 	}
 	return station, temp, nil
 
@@ -113,12 +113,12 @@ func ReadBufferedFromFile(scanner *bufio.Scanner) (string, int, error) {
 // UpdateAggMapWithResults updates the aggregation map aggTempByStation with the temperature reading for the given station.
 // If the station is not yet in the map, it initializes the metrics for that station.
 // Otherwise, it updates the min, max, sum, and count metrics for the station.
-func UpdateAggMapWithResults(aggTempByStation map[string][NumMetrics]int, station string, temp int) {
+func UpdateAggMapWithResults(aggTempByStation map[string][NumMetrics]int16, station string, temp int16) {
 	metricVals, ok := aggTempByStation[station]
 	if !ok {
-		aggTempByStation[station] = [NumMetrics]int{temp, temp, temp, 1}
+		aggTempByStation[station] = [NumMetrics]int16{temp, temp, temp, 1}
 	} else {
 		maxV, minV, sumV, countV := metricVals[max_value_index], metricVals[min_value_index], metricVals[sum_value_index], metricVals[count_value_index]
-		aggTempByStation[station] = [NumMetrics]int{max(maxV, temp), min(minV, temp), sumV + temp, countV + 1}
+		aggTempByStation[station] = [NumMetrics]int16{max(maxV, temp), min(minV, temp), sumV + temp, countV + 1}
 	}
 }

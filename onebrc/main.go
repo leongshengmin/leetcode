@@ -28,7 +28,7 @@ min,avg,max
 **/
 
 type OneBRCRunner interface {
-	Run(filename string) (map[string][onebrc.NumMetrics]int, error)
+	Run(filename string) (map[string][onebrc.NumMetrics]int16, error)
 }
 
 // max, min, sum, count
@@ -93,7 +93,7 @@ func main() {
 	onebrc.OutputResultToStdOut(aggTempByStation, true)
 }
 
-func timeFuncCallElapsed(name string, runner OneBRCRunner, filename string) (map[string][onebrc.NumMetrics]int, error) {
+func timeFuncCallElapsed(name string, runner OneBRCRunner, filename string) (map[string][onebrc.NumMetrics]int16, error) {
 	time_now := time.Now()
 	slog.Info(name, "start", time_now)
 	res, err := runner.Run(filename)

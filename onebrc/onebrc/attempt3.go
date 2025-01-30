@@ -11,7 +11,7 @@ import (
 
 type Attempt3 struct{}
 
-func (a *Attempt3) Run(filename string) (map[string][NumMetrics]int, error) {
+func (a *Attempt3) Run(filename string) (map[string][NumMetrics]int16, error) {
 	splits, err := splitFile(filename, numConsumerGoroutines)
 	if err != nil {
 		slog.Error("error splitting file", "err", err)
@@ -19,7 +19,7 @@ func (a *Attempt3) Run(filename string) (map[string][NumMetrics]int, error) {
 	}
 
 	// create buffered channels allowing parallel reads from number of goroutines
-	resultsChan := make(chan *map[string][NumMetrics]int, numConsumerGoroutines)
+	resultsChan := make(chan *map[string][NumMetrics]int16, numConsumerGoroutines)
 	defer close(resultsChan)
 
 	// start consumer goroutines to get agg values
@@ -30,7 +30,7 @@ func (a *Attempt3) Run(filename string) (map[string][NumMetrics]int, error) {
 
 	// merge results from goroutines whenever they come in to results chan
 	// this will block until all results are published
-	aggResult := map[string][NumMetrics]int{}
+	aggResult := map[string][NumMetrics]int16{}
 	for range numConsumerGoroutines {
 		// block till we get something from the results chan
 		res := <-resultsChan
@@ -39,17 +39,17 @@ func (a *Attempt3) Run(filename string) (map[string][NumMetrics]int, error) {
 			maxV, minV, sumV, countV := metricVals[max_value_index], metricVals[min_value_index], metricVals[sum_value_index], metricVals[count_value_index]
 			aggV, ok := aggResult[station]
 			if !ok {
-				aggResult[station] = [4]int{maxV, minV, sumV, countV}
+				aggResult[station] = [4]int16{maxV, minV, sumV, countV}
 				continue
 			}
-			aggResult[station] = [4]int{max(maxV, aggV[max_value_index]), min(minV, aggV[min_value_index]), sumV + aggV[sum_value_index], countV + aggV[count_value_index]}
+			aggResult[station] = [4]int16{max(maxV, aggV[max_value_index]), min(minV, aggV[min_value_index]), sumV + aggV[sum_value_index], countV + aggV[count_value_index]}
 		}
 	}
 
 	return aggResult, nil
 }
 
-func startWorkerProcessPart(workerID int, filename string, fileOffset int64, partSize int64, res chan<- *map[string][NumMetrics]int) {
+func startWorkerProcessPart(workerID int, filename string, fileOffset int64, partSize int64, res chan<- *map[string][NumMetrics]int16) {
 	slog.Debug("starting worker", "workerID", workerID, "fileOffset", fileOffset)
 	file, err := os.Open(filename)
 	if err != nil {
@@ -67,7 +67,7 @@ func startWorkerProcessPart(workerID int, filename string, fileOffset int64, par
 	scanner := bufio.NewScanner(&limitedReader)
 
 	// create map to store agg results per worker so we don't share state
-	aggTempByStation := map[string][NumMetrics]int{}
+	aggTempByStation := map[string][NumMetrics]int16{}
 
 	for scanner.Scan() {
 		station, temp, err := ReadBufferedFromFile(scanner)
