@@ -4,7 +4,7 @@ Dijkstras Algorithm to find shortest path between any two nodes in a graph.
 Graph is represented as an adj matrix, where graph[u][v] = weight of edge
 between u and v.
 
-Graph is undirected, and has no negative weights.
+Graph can be directed/undirected, and has no negative weights.
 
 Time Complexity: O(V^2)
 Space Complexity: O(V)

@@ -40,3 +40,33 @@ class Solution:
         # here we just convert parent into a set of unique parent ids
         # and then get the size of it
         return len(set(parent))
+
+
+# redo
+class Solution:
+    def countComponents(self, n: int, edges: List[List[int]]) -> int:
+        # union find - a node is in a component if it has the same parent
+        # initially we maintain a list of parents wherein each node is its own
+        # then union to build the parent graph as we iterate through the edges
+        parents = [i for i in range(n)]
+
+        def find(u: int) -> int:
+            if parents[u] == u:
+                return u
+            parents[u] = find(parents[u])
+            return parents[u]
+
+        def union(u: int, v: int):
+            paru = find(u)
+            parv = find(v)
+            if paru <= parv:
+                parents[parv] = paru
+            else:
+                parents[paru] = parv
+
+        # union nodes that share an edge
+        for u, v in edges:
+            union(u, v)
+
+        # number of components = unique set of parents
+        return len(set(parents))

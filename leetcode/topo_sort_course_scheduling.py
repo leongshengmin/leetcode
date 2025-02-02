@@ -88,3 +88,41 @@ class Solution:
         if len(ordering) < numCourses:
             return []
         return ordering
+
+
+# redo
+class Solution:
+    def canFinish(self, numCourses: int, prerequisites: List[List[int]]) -> bool:
+        # we can finish if there's a topological ordering of courses
+        # ie we topological ordering size = # of courses
+        # and there exists a course without prerequisites
+
+        indegrees = [0 for _ in range(numCourses)]
+        adj_list = [[] for _ in range(numCourses)]
+
+        for u, v in prerequisites:
+            # u->v meaning indegree of v should be incremented
+            indegrees[v] += 1
+            adj_list[u].append(v)
+
+        # there should exist a course with indegree 0 otherwise there isnt a valid ordering
+        to_visit = []
+        for i in range(numCourses):
+            if indegrees[i] == 0:
+                to_visit.append((0, i))
+        if not to_visit:
+            return False
+
+        heapq.heapify(to_visit)
+
+        while to_visit:
+            indeg, u = heapq.heappop(to_visit)
+            for v in adj_list[u]:
+                indegrees[v] -= 1
+                if indegrees[v] == 0:
+                    heapq.heappush(to_visit, (0, v))
+
+        has_gt_zero = any([d for d in indegrees if d > 0])
+        if has_gt_zero:
+            return False
+        return True

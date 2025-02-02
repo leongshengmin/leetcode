@@ -1,57 +1,50 @@
 import heapq
-
-"""
-You are given a network of n nodes, labeled from 1 to n.
-You are also given times, a list of travel times as directed edges 
-times[i] = (ui, vi, wi),
-where ui is the source node,
-vi is the target node,
-and wi is the time it takes for a signal to travel from source to target.
-
-We will send a signal from a given node k.
-Return the minimum time it takes for all the n nodes to receive the signal. 
-If it is impossible for all the n nodes to receive the signal, return -1.
-
-
-USE PRIM/KRUSKALs since the graph is directed AND
-we have a src node.
-"""
+from typing import List
 
 
 class Solution:
-    def networkDelayTime(self, times: list[list[int]], n: int, k: int) -> int:
-        # min time for all n nodes to receive signal
-        # means we need to find the min weight edges that connect all nodes
-        # then sum up edge weights
+    def networkDelayTime(self, times: List[List[int]], n: int, k: int) -> int:
+        # graph is directed which means we need to use dijkstras
+        # to find shortest dist from source vertex k to all other vertices
+        # minimum time for all n nodes to receive signal from k = sum (min dist from k to node)
 
-        # NOT a MST problem
-        # NEED TO USE Dijkstras
-        # since qn is asking for min cost to reach all nodes
+        def dijkstras(src: int, n: int, edges: List[List[int]]):
+            distances = [float("inf") for _ in range(n)]
+            distances[src - 1] = 0
 
-        # use prims starting from node k
-        # init adj matrix
-        adj_matrix = [[i for i in range(n)] * n]
-        for i in range(len(times)):
-            u, v, w = times[i]
-            adj_matrix[u][v] = w
+            # since vertices are 1 indexed, we sub 1 from it
+            adj_list = [[] for _ in range(n)]
+            for u, v, w in edges:
+                adj_list[u - 1].append((v - 1, w))
 
-        min_w = 99999
-        kd = None
-        for d in adj_matrix[k]:
-            min_w = min(min_w, adj_matrix[k][d])
-            if min_w == adj_matrix[k][d]:
-                kd = d
+            to_visit = [(0, src - 1)]
+            heapq.heapify(to_visit)
+            visited = [False for _ in range(n)]
 
-        visited = set()
-        to_visit = [(min_w, k, kd)]
-        edges = []
-        while len(visited) < n:
-            w, u, v = heapq.heappop(to_visit)
-            edges.append(w)
-            visited.add(u)
-            if v in visited:
-                continue
-            for d in adj_matrix[v]:
-                heapq.heappush(to_visit, (adj_matrix[v][d], v, d))
+            while to_visit:
+                _, u = heapq.heappop(to_visit)
+                visited[u] = True
 
-        return sum(edges)
+                for v, w in adj_list[u]:
+                    if visited[v]:
+                        continue
+                    if distances[u] + w <= distances[v]:
+                        distances[v] = distances[u] + w
+                        heapq.heappush(to_visit, (distances[v], v))
+
+            # max distance from k to every other node if we send in parallel
+            res = max(distances)
+
+            # if all nodes are visited then its possible for all nodes to receive the signal
+            print(f"visited={visited},distances={distances}")
+            if all(visited):
+                return res
+            return -1
+
+        return dijkstras(k, n, times)
+
+
+times = [[1, 2, 1], [2, 3, 1], [1, 4, 4], [3, 4, 1]]
+n = 4
+k = 1
+print(Solution().networkDelayTime(times, n, k))
