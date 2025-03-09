@@ -9,7 +9,6 @@ LOG_FILE="/var/log/kubernetes/kubeadm-init.log"
 # Kubeadm init
 ##################################
 
-touch /tmp/kubeadm-init.lock
 if [[ -f /tmp/kubeadm-init.lock ]]; then
     echo "kubeadm-init is already running"
     echo "To re-run kubeadm-init, delete /tmp/kubeadm-init.lock"
@@ -23,6 +22,7 @@ kubeadm_reset() {
 }
 
 kubeadm_init() {
+    touch /tmp/kubeadm-init.lock
     echo "Initializing kubeadm..."
     # get IP of default gateway to use as apiserver-advertise-address
     apiserver_advertise_ip=$(ip route show | grep 'default via' | awk '{print $9}')
@@ -75,5 +75,9 @@ EOF
     kubectl get pod -A
 }
 
-kubeadm_reset >> "${LOG_FILE}" 2>&1
+reset=${1:-false}
+if [[ "${reset}" == "true" ]]; then
+    kubeadm_reset >> "${LOG_FILE}" 2>&1
+    exit 0
+fi
 kubeadm_init >> "${LOG_FILE}" 2>&1
