@@ -11,7 +11,7 @@ brew install --cask multipass
 
 Launch an Ubuntu VM with 4GB of RAM and 2 CPUs meeting the minimum requirements for running a Kubernetes cluster using kubeadm.
 ```sh
-multipass launch --name k8s-control-plane --cpus 2 --memory 2G --disk 3G 22.04 -v
+multipass launch --name k8s-control-plane --cpus 2 --memory 2G --disk 4G 22.04 -v
 ```
 
 Get IP of the VM
@@ -69,6 +69,11 @@ kubectl --kubeconfig ~/.kube/k8s-control-plane-admin.config get nodes
 
 Stop the VMs.
 ```sh
-multipass stop k8s-control-plane
+multipass stop k8s-control-plane && multipass delete k8s-control-plane && multipass purge
 multipass stop k8s-worker-node
 ```
+
+Networking modes CNI:
+- https://www.redhat.com/en/blog/kubernetes-pods-communicate-nodes
+- https://rendoaw.github.io/2017/10/Calico-and-Kubernetes-part-1
+- https://joshrosso.com/c/calico-routing-modes/
