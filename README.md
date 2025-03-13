@@ -4,8 +4,15 @@ Leetcode problems that are done suboptimally + Notes on Filesystems/Networking +
 ```sh
 .
 ├── README.md
+├── clp
+│   └── clp-java-playground
+├── k8s
+│   ├── common
+│   ├── control-plane
+│   └── readme.md
 ├── leetcode
 │   ├── 1d_dp_combination_sum.py
+│   ├── 1d_dp_integer_break.py
 │   ├── 1d_dp_perfect_sqs.py
 │   ├── 2_ptrs_longest_palindromic_substring.py
 │   ├── 2_ptrs_num_palindromic_substrings.py
@@ -30,6 +37,7 @@ Leetcode problems that are done suboptimally + Notes on Filesystems/Networking +
 │   ├── bellman_fords_min_cost_max_flow_directed_graph.py
 │   ├── bfs_find_eventual_safe_states.py
 │   ├── bfs_find_safest_path_in_grid.py
+│   ├── bfs_island_perimeter.py
 │   ├── bfs_num_subislands.py
 │   ├── bfs_open_the_lock.py
 │   ├── bfs_reorder_routes_to_make_all_paths_lead_to_city_0.py
@@ -39,7 +47,9 @@ Leetcode problems that are done suboptimally + Notes on Filesystems/Networking +
 │   ├── binary_tree_kth_smallest.py
 │   ├── dfs_pacific_atlantic.py
 │   ├── dfs_surrounding_regions.py
+│   ├── dfs_unique_graphs2.py
 │   ├── dijkstras.py
+│   ├── dijkstras_min_path_sum.py
 │   ├── dijkstras_network_delay_time.py
 │   ├── dijkstras_path_with_max_probability.py
 │   ├── dijkstras_shortest_flights_within_k_stops.py
@@ -57,6 +67,7 @@ Leetcode problems that are done suboptimally + Notes on Filesystems/Networking +
 │   ├── greedy_can_jump2.py
 │   ├── greedy_max_subarray.py
 │   ├── heap_kclosest_to_origin.py
+│   ├── heap_kth_largest_elem_in_array.py
 │   ├── insertion_sort.py
 │   ├── linked_list_reorder_list.py
 │   ├── linked_list_rm_nth_from_end.py
@@ -76,6 +87,7 @@ Leetcode problems that are done suboptimally + Notes on Filesystems/Networking +
 │   ├── tree_level_order_bfs_traversal.py
 │   ├── two_ptrs_best_time_to_buy_sell_stock.py
 │   ├── union_find.py
+│   ├── union_find_accounts_merge.py
 │   ├── union_find_connected_components.py
 │   ├── union_find_find_redundant_connection.py
 │   ├── union_find_longest_consecutive_subseq.py
@@ -87,6 +99,10 @@ Leetcode problems that are done suboptimally + Notes on Filesystems/Networking +
 │   ├── fs_inodes_0.png
 │   ├── fs_inodes_1.png
 │   ├── igw_vs_natgw.md
+│   ├── k8s_container_to_container_networking.png
+│   ├── k8s_pod_to_pod_networking_diff_nodes.png
+│   ├── k8s_pod_to_pod_networking_same_node_0.png
+│   ├── k8s_pod_to_pod_networking_same_node_1.png
 │   ├── language_vm.md
 │   ├── language_vm_overview.png
 │   ├── linux_network_sending_rx.md
@@ -116,17 +132,16 @@ Leetcode problems that are done suboptimally + Notes on Filesystems/Networking +
 │   ├── system_design_whatsapp.md
 │   └── tcp_ssl_handshake.md
 └── onebrc
-    ├── 1brc // actual 1brc repo for testing and all
+    ├── 1brc
     ├── Makefile
     ├── README.md
+    ├── benhoyt
     ├── bin
     ├── go.mod
     ├── main.go
-    ├── onebrc // coded attempts
+    ├── onebrc
     ├── outputs
     └── testdata
 
-10 directories, 114 files
-
-
+15 directories, 125 files
 ```
