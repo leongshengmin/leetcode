@@ -3,6 +3,76 @@ Reserved IPs: 1st & last in CIDR block
 - 1st address in a subnet is the “network address” and cannot be assigned to a host (host ip).
 - last address in a subnet is the “broadcast address” (used for sending packets to all hosts on the network - multicast)
 
+## Port forwarding / Mapping
+> 🤓 Technically, port forwarding is a form of Network Address Translation (NAT).
+
+![port_map](https://iximiuz.com/docker-publish-container-ports/port-forwarding-idea-2000-opt.png)
+
+There are two common ways to redirect network data (hence, implement port forwarding):
+1. By sneakily modifying the destination address of packets. (kernel space)
+2. By explicitly putting a proxy between the client and the server. (user space)
+
+![kernelspace_netfilter_vs_userspace_proxy](https://iximiuz.com/docker-publish-container-ports/port-forwarding-impl-2000-opt.png)
+1. NAT approach
+In the first case, packets originally destined to some <addr1:port1> get modified (or translated) on their way and instead delivered to <addr2:port2>. Often, this is done by a Linux kernel component such as netfilter configured with a bunch of iptables rules.
+
+2. Proxy user space approach
+In the second case, the client-facing socket is actually maintained by an L4+ proxy process that reads the incoming data and re-sends it to the final destination. I.e., no packets are actually translated, and only the payload data is proxied.
+
+**Port publishing in docker** = port mapping from user root network ns -> container network ns
+
+In its simple form, the docker run --publish 8080:80 nginx command creates a regular port forwarding from the host's 0.0.0.0:8080 to the container's $CONT_IP:80.
+
+Since both sides of the mapping reside on one Linux host, such a forwarding can be implemented with just a couple of iptables rules:
+```
+$ docker run -d -p 8080:80 --name nginx-1 nginx
+
+$ sudo iptables -t nat -L
+...
+
+Chain POSTROUTING (policy ACCEPT)
+target     prot opt source          destination
+...
+MASQUERADE  tcp  --  172.17.0.2      172.17.0.2     tcp dpt:http
+
+Chain DOCKER (2 references)
+target     prot opt source          destination
+...
+DNAT       tcp  --  anywhere        anywhere        tcp dpt:8080 to:172.17.0.2:80
+```
+
+>Thus, it seems that in the case of Docker Engine, there is not much difference between port publishing and good old kernel space port forwarding. The only "extra" functionality that Docker adds on top is the automatic update of the destination part of the mapping in the case of the container's IP address change.
+![port_publish_remapping_ip](https://iximiuz.com/docker-publish-container-ports/docker-engine-port-publishing-2000-opt.png)
+
+Similar network model in k8s
+!(k8s_networking)[https://learnk8s.io/a/10779bb42475660d288ff00c4866991f.svg]
+here the virtual docker0 bridge is a L2 bridge (link-layer) that allows pods to communicate with each other w/o using NAT.
+Instead, each pods's eth0 interface in the pods's own network ns gets mapped to the virtual veth0 interface in the host's root ns (similar to connecting between 2 different subnets -- wherein you use the dest ip addr to figure out if the packet is in local container subnet / should use gateway in the root ns to be proxied out -- except also note this is a flat network).
+If packet dst ip is bound for pod outside of node (determined using subnet mask of routetable), packet will be forwarded to eth0 interface in pod netns to veth0 interface in root ns via bridge.
+Again, dst ip checked and found that it doesn't belong to local node's subnet range, so ARP used to resolve gateway IP to MAC addr for layer2 forwarding to docker0 bridge's eth0 interface (this maps to pod B's eth0 interface via bridge again).
+
+**Container-to-container communication**
+![container_to_container_communication](k8s_container_to_container_networking.png)
+
+**Pod-to-pod communication (same node)**
+![pod_to_pod_communication](k8s_pod_to_pod_networking_same_node_0.png)
+![pod_to_pod_communication](k8s_pod_to_pod_networking_same_node_1.png)
+
+**Pod-to-pod communication (different nodes)**
+![pod_to_pod_communication](k8s_pod_to_pod_networking_diff_nodes.png)
+
+**Kube-proxy**
+- Each node runs a kube-proxy, the K8s process implementing Services
+- kube-proxy creates and manages iptables rules to route incoming traffic destined for the Service IP to one or more backend pods.
+- These iptables rules are maintained in the NAT table and are dynamically updated as pods are added or removed.
+```
+# PREROUTING rules used to perform NAT by modifying incoming packets before they get routed; 
+# POSTROUTING rules modify packets as they are about to leave the node;
+# ensuring that packets reach the correct backend pods
+iptables -t nat -A PREROUTING -p tcp -d <Service-IP> --dport <Service-Port> -j DNAT --to-destination <Pod-IP>:<Pod-Port>
+iptables -t nat -A POSTROUTING -p tcp -d <Pod-IP> --dport <Pod-Port> -j SNAT --to-source <Node-IP>
+```
+
 ## What happens when you visit google.com from your laptop?
 **Devices and Interrupts**
 1. When you press the "enter" key on your keyboard, the keyboard (device) sends a hardware interrupt on its interrupt request queue (IRQ), which is mapped to an interrupt vector (`int`).
