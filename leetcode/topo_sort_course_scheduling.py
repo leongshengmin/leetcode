@@ -126,3 +126,43 @@ class Solution:
         if has_gt_zero:
             return False
         return True
+
+
+class Solution:
+    def canFinish(self, numCourses: int, prerequisites: List[List[int]]) -> bool:
+        # can finish if there exists a topo ordering of courses
+        # ie there exists >= 1 course with 0 indegree
+        # we always visit the 0 indegree vertex first (using minheap) and
+        # reduce the counter of indegree for vertices this vertex has an outgoing edge to
+
+        # if we pop the minheap and we get a vertex with indegree >0 that isn't yet visited --> not possible
+        # otherwise possible
+
+        adj_list = [[] for _ in range(numCourses)]
+        indegree_count = [0 for _ in range(numCourses)]
+
+        # prerequisites [a,b] means b -> a
+        # form adj_list and update indegree count here
+        for u, v in prerequisites:
+            indegree_count[v] += 1
+            adj_list[u].append(v)
+
+        courses = deque([i for i in range(numCourses) if indegree_count[i] == 0])
+
+        # no vertices have indegree 0
+        if not courses:
+            return False
+
+        while courses:
+            u = courses.popleft()
+            # visit neighbours and decrement indegree count
+            # only adding them to courses we can satisfy once indegree == 0 ie no remaining prerequisites
+            for v in adj_list[u]:
+                indegree_count[v] -= 1
+                if indegree_count[v] == 0:
+                    courses.append(v)
+
+        has_non_zero_indeg = any(i for i in indegree_count if i > 0)
+        if has_non_zero_indeg:
+            return False
+        return True

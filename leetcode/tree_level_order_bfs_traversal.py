@@ -6,6 +6,7 @@
 #         self.right = right
 
 import math
+from typing import List, Optional
 
 
 class Solution:
@@ -36,4 +37,33 @@ class Solution:
                 continue
             res.append(level)
 
+        return res
+
+
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def levelOrder(self, root: Optional[TreeNode]) -> List[List[int]]:
+        # for each level we need to store the nodes in an array to visit them in order
+        if not root:
+            return []
+
+        res = []
+        to_visit = deque([[root]])
+        while to_visit:
+            prev_level_nodes = to_visit.popleft()
+            print(prev_level_nodes)
+            res.append([n.val for n in prev_level_nodes])
+            level_nodes = []
+            for node in prev_level_nodes:
+                if node.left:
+                    level_nodes.append(node.left)
+                if node.right:
+                    level_nodes.append(node.right)
+            if not level_nodes:
+                continue
+            to_visit.append(level_nodes)
         return res
