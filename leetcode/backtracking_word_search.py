@@ -1,7 +1,7 @@
 from typing import List
 
 
-class Solution:
+class Solution2:
     def exist(self, board: List[List[str]], word: str) -> bool:
         # recursive soln
         def dfs2(
@@ -94,6 +94,50 @@ class Solution:
                     has_word = dfs(i, j, word, board, visited, directions)
                     if has_word:
                         return True
+        return False
+
+
+class Solution:
+    def exist(self, board: List[List[str]], word: str) -> bool:
+        # if char matches continue dfs otherwise we need to backtrack to reset visited cell
+        directions = [(0, 1), (1, 0), (-1, 0), (0, -1)]
+        VISITED = "-"
+        memo = {}
+
+        def dfs(i: int, j: int, word_idx: int) -> bool:
+            if word_idx >= len(word):
+                return True
+            if board[i][j] != word[word_idx]:
+                return False
+            if (i, j, word_idx) in memo:
+                return memo[(i, j, word_idx)]
+
+            # only mark cell as visited once we've verified that char in cell matches word_idx
+            board[i][j] = VISITED
+
+            can_find = False
+            for di, dj in directions:
+                ni, nj = i + di, j + dj
+                if ni < 0 or nj < 0 or ni >= len(board) or nj >= len(board[0]):
+                    continue
+                if board[ni][nj] == VISITED:
+                    continue
+                can_find = dfs(ni, nj, word_idx + 1)
+                # reset board cell as not visited
+                if can_find:
+                    memo[(i, j, word_idx)] = True
+                    return True
+
+            # reset as not visited since we cant use this cell
+            board[i][j] = word[word_idx]
+            memo[(i, j, word_idx)] = False
+            return False
+
+        for i in range(len(board)):
+            for j in range(len(board[0])):
+                can_find = dfs(i, j, 0)
+                if can_find:
+                    return True
         return False
 
 
