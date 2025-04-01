@@ -33,4 +33,14 @@ from typing import List
 
 class Solution:
     def maxProfit(self, prices: List[int]) -> int:
-        pass
+        # max profix = buy low sell high ie left pointer < right pointer
+        # if right < left then might as well set left pointer to right
+        l_ptr, r_ptr = 0, 1
+        max_profit = 0
+        while r_ptr < len(prices):
+            if prices[r_ptr] > prices[l_ptr]:
+                max_profit = max(prices[r_ptr] - prices[l_ptr], max_profit)
+            else:
+                l_ptr = r_ptr
+            r_ptr += 1
+        return max_profit

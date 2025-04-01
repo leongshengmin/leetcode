@@ -166,3 +166,36 @@ class Solution:
         if has_non_zero_indeg:
             return False
         return True
+
+
+class Solution:
+    def canFinish(self, numCourses: int, prerequisites: List[List[int]]) -> bool:
+        # we can finish if there exists a topo ordering
+        # ie there must exist a course that has 0 prerequisites ie indegree 0
+        # we visit that and update its neighbours to reduce indegree by 1
+        # if we're able to visit all courses then we can fulfil otherwise no
+        indegrees = [0 for _ in range(numCourses)]
+        adj_list = [[] for _ in range(numCourses)]
+        # u,v means take v before u ie v -> u
+        # so indegree[u] += 1
+        for u, v in prerequisites:
+            adj_list[v].append(u)
+            indegrees[u] += 1
+
+        course_with_indeg_zero = deque(
+            [i for i in range(numCourses) if indegrees[i] == 0]
+        )
+        if not course_with_indeg_zero:
+            return False
+
+        while course_with_indeg_zero:
+            u = course_with_indeg_zero.popleft()
+            for v in adj_list[u]:
+                indegrees[v] -= 1
+                if indegrees[v] == 0:
+                    course_with_indeg_zero.append(v)
+
+        all_prereq_satisfied = (
+            len([i for i in range(numCourses) if indegrees[i] == 0]) == numCourses
+        )
+        return all_prereq_satisfied

@@ -17,7 +17,6 @@ class Solution2:
                 return True
 
             visited[i][j] = True
-
             for r, c in directions:
                 new_i = r + i
                 new_j = c + j
@@ -109,6 +108,9 @@ class Solution:
                 return True
             if board[i][j] != word[word_idx]:
                 return False
+            # need if board [["a"]], word = "a"
+            if word_idx >= len(word) - 1:
+                return True
             if (i, j, word_idx) in memo:
                 return memo[(i, j, word_idx)]
 
