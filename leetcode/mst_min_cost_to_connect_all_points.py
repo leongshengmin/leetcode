@@ -55,3 +55,40 @@ class Solution:
             for dist_ij, j in adj_list[i]:
                 heapq.heappush(min_heap, (dist_ij, j))
         return sum(mst_edges)
+
+
+class Solution:
+    def minCostConnectPoints(self, points: List[List[int]]) -> int:
+        # min cost to connect all points = MST
+        # get manhattan dist from each point (u1,v1) to every other point as weight
+        # use prims
+        adj_list = [[] for i in range(len(points))]
+        visited = [False for _ in range(len(points))]
+        for i in range(len(points)):
+            xi, yi = points[i]
+            # get manhattan dist from (xi, yi) to every other point
+            for j in range(len(points)):
+                xj, yj = points[j]
+                if i == j:
+                    continue
+                man_dist = abs(xi - xj) + abs(yi - yj)
+                adj_list[i].append((man_dist, j))
+
+        # mark 0th index as src with dist 0
+        to_visit = [(0, 0)]
+        heapq.heapify(to_visit)
+
+        total_cost = 0
+
+        while to_visit:
+            man_dist, u_idx = heapq.heappop(to_visit)
+            if visited[u_idx]:
+                continue
+            visited[u_idx] = True
+            total_cost += man_dist
+
+            for w, v_idx in adj_list[u_idx]:
+                if visited[v_idx]:
+                    continue
+                heapq.heappush(to_visit, (w, v_idx))
+        return total_cost
