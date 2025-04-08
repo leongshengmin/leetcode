@@ -34,3 +34,58 @@ class Solution:
 
         return res
         # WRONG as we're only checking 1st color in adj_list
+
+
+class Solution:
+    def shortestAlternatingPaths(
+        self, n: int, redEdges: List[List[int]], blueEdges: List[List[int]]
+    ) -> List[int]:
+        # dijkstras except modified st path edges must alternate between red, blue edges
+        # answer is the distances array (dist from src 0 to vertex v)
+        # modify adj_list to separate red, blue edges
+        red_adj_list = [[] for _ in range(n)]
+        blue_adj_list = [[] for _ in range(n)]
+        for u, v in redEdges:
+            red_adj_list[u].append(v)
+        for u, v in blueEdges:
+            blue_adj_list[u].append(v)
+
+        distances = [float("inf") for _ in range(n)]
+        distances[0] = 0
+
+        RED = "r"
+        BLUE = "b"
+        to_visit = [(0, 0, RED), (0, 0, BLUE)]
+        heapq.heapify(to_visit)
+        visited = {}
+
+        while to_visit:
+            dist, u, color = heapq.heappop(to_visit)
+            if color == RED:
+                for v in blue_adj_list[u]:
+                    if dist + 1 < distances[v]:
+                        distances[v] = dist + 1
+                    if (v, BLUE) in visited:
+                        continue
+                    # modify when we push onto heap
+                    # due to color constraint
+                    # we push as long as edge is not yet in visited
+                    visited[(v, BLUE)] = True
+                    heapq.heappush(to_visit, (dist + 1, v, BLUE))
+
+            elif color == BLUE:
+                for v in red_adj_list[u]:
+                    if dist + 1 < distances[v]:
+                        distances[v] = dist + 1
+                    if (v, RED) in visited:
+                        continue
+                    # modify when we push onto heap
+                    # due to color constraint
+                    # we push as long as edge is not yet in visited
+                    visited[(v, RED)] = True
+                    heapq.heappush(to_visit, (dist + 1, v, RED))
+
+        for i in range(n):
+            if distances[i] == float("inf"):
+                distances[i] = -1
+        return distances

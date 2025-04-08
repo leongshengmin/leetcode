@@ -61,23 +61,17 @@ class Solution:
         distances = [float("inf") for _ in range(n)]
         distances[0] = 0
 
-        visited = set()
-
         num_ways = [0 for _ in range(n)]
 
-        memo = {}
-
         while to_visit:
-            dist, u, came_from = heapq.heappop(to_visit)
-            if u == n - 1:
-                return num_ways[u] % (10 ^ 9 + 7)
-
+            dist, u = heapq.heappop(to_visit)
+            if dist > distances[u]:
+                continue
             for v, weight in adj_list[u]:
-                if (v, u) in memo:
-                    continue
-                if distances[u] + dist <= distances[v]:
+                if distances[u] + dist < distances[v]:
                     distances[v] = distances[u] + dist
                     heapq.heappush(to_visit, (distances[v], v, u))
-                    memo[(v, u)] = True
-                    num_ways[v] += 1
-        return 0
+                    num_ways[v] = num_ways[u]
+                elif distances[u] + dist == distances[v]:
+                    num_ways[v] += num_ways[u]
+        return num_ways[n - 1] % (10 ^ 9 + 7)
