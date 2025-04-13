@@ -1,56 +1,28 @@
-"""
-There are n cities connected by some number of flights.
-You are given an array flights where flights[i] = [fromi, toi, pricei]
-indicates that there is a flight from city fromi to city toi with cost pricei.
-
-You are also given three integers src, dst, and k, return the cheapest price from src to dst with at most k stops. If there is no such route, return -1.
-
-cannot use dijkstras even though this is a directed graph and they want to find shortest path from arbitrary src vertex to dst vertex,
-due to limitation on hops.
-Use bfs instead.
-"""
-
-from typing import List
-
-# https://leetcode.com/problems/cheapest-flights-within-k-stops/submissions/1448698317/
-
-from collections import deque
-
-
 class Solution:
     def findCheapestPrice(
         self, n: int, flights: List[List[int]], src: int, dst: int, k: int
     ) -> int:
-        if not flights:
-            return -1
-
-        # use bfs due to hop limitation
-        to_visit = deque()
-        visited = [False for _ in range(n)]
-        hop_count = [float("inf") for _ in range(n)]
-        distance = [float("inf") for _ in range(n)]
-
-        # construct adj list from edges
         adj_list = [[] for _ in range(n)]
         for u, v, w in flights:
             adj_list[u].append((v, w))
 
-        # add source to to visit
-        to_visit.append((src, 0))
-        hop_count[src] = -1
-        distance[src] = 0
+        distances = [float("inf") for _ in range(n)]
+        distances[src] = 0
+        # hop count, u, distance
+        to_visit = [(0, src, 0)]
+        heapq.heapify(to_visit)
 
         while to_visit:
-            u, w = to_visit.popleft()
-            visited[u] = True
+            hops, u, dist = heapq.heappop(to_visit)
+            if hops > k:
+                break
+            for v, w in adj_list[u]:
+                # use dist instead of distances[u] due to hop count limitation
+                # ie need to use dist to curr node u so far
+                if w + dist < distances[v]:
+                    distances[v] = w + dist
+                    heapq.heappush(to_visit, (hops + 1, v, distances[v]))
 
-            for v, vw in adj_list[u]:
-                if hop_count[u] + 1 > k:
-                    continue
-                hop_count[v] = hop_count[u] + 1
-                distance[v] = min(distance[u] + vw, distance[v])
-                to_visit.append((v, vw))
-
-        if not visited[dst]:
+        if distances[dst] == float("inf"):
             return -1
-        return distance[dst]
+        return distances[dst]
